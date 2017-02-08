@@ -1,5 +1,6 @@
 # Python
 __pycache__
+.*.swp
 
 # ios build / beeware / etc.
 *.framework
