@@ -1,17 +1,13 @@
+""" whatever is dumperd to syslog is visible in simulator's host Console """
 import logging
 import syslog
-syslog.syslog(syslog.LOG_ERR, "LINE------------")
 
 
-class SyslogHandler(logging.StreamHandler):
-    def __init__(self):
-        super().__init__()
-        self.stream = self
-
+class SyslogFile:
     def write(self, s):
-        syslog.syslog(syslog.LOG_ERR, s.strip())
+        if s.strip():
+            syslog.syslog(syslog.LOG_ERR, s.strip())
 
 
-logging.basicConfig(level=logging.DEBUG, handlers=[SyslogHandler])
-
-logging.debug("yippiiii")
+logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(stream=SyslogFile())])
+logging.debug("bootstrap logging initialised")
