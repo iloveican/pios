@@ -4,6 +4,12 @@ import logging
 from rubicon.objc import objc_method, ObjCClass
 
 
+if __name__.split(".")[-1] == "__main__":
+    # I'm ran as a module
+    logging.root.addHandler(nslog.handler())
+    logging.debug("yep, in main")
+
+
 class PythonAppDelegate(ObjCClass('UIResponder')):
     def __init__(self):
         logging.debug("instance created")

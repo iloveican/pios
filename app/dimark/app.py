@@ -12,7 +12,11 @@ class SyslogFile:
             syslog.syslog(syslog.LOG_ERR, s.strip())
 
 
-logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(stream=SyslogFile())])
+def handler():
+    return logging.StreamHandler(stream=SyslogFile())
+
+
+logging.basicConfig(level=logging.DEBUG, handlers=[handler()])
 logging.debug("bootstrap logging initialised")
 
 # sources: <your-project-dir>/app_packages
@@ -24,3 +28,4 @@ try:
     runpy.run_module("ui")
 except:
     logging.exception("something went wrong")
+    raise

@@ -1,7 +1,6 @@
 import logging
+from rubicon.objc import ObjCClass, ObjCInstance, send_message
 
-from rubicon.objc import objc_method, ObjCClass, ObjCInstance, send_message
-logging.debug("yippie, loaded objc")
 
 class NSString(ObjCInstance):
     @classmethod
@@ -25,5 +24,11 @@ def NSLog(s):
     extension.NSLog(NSString.from_python(s))
 
 
-for i in range(10):
-    NSLog("foobarbazgoogoooooo\N{EURO SIGN} %s" % i)
+class NSLogFile:
+    def write(self, s):
+        if s.strip():
+            NSLog(s.strip())
+
+
+def handler():
+    return logging.StreamHandler(stream=NSLogFile())
