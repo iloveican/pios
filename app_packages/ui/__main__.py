@@ -21,12 +21,15 @@ class PythonAppDelegate(ObjCClass('UIResponder')):
     @objc_method
     def application_didFinishLaunchingWithOptions_(self, application, oldStatusBarOrientation: int) -> None:
         logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
+
         try:
             root = ObjCClass("UIViewController").alloc().init()
-            nav = ObjCClass("UINavigationController").alloc().initWithRootViewController(root)
+            root.title = "Hello"
+            root.view.backgroundColor = ObjCClass("UIColor").blueColor()
+            # root.view.backgroundColor = ObjCClass("UIColor").alloc().initWithWhite_alpha_(0.5, 0.5)
+            nav = ObjCClass("UINavigationController").alloc().initWithRootViewController_(root)
         except:
             logging.exception("terrible")
-
 
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
