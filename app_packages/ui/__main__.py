@@ -2,7 +2,7 @@ import nslog
 import logging
 
 from rubicon.objc import objc_method, ObjCClass
-from rubicon.objc.types import CGSize
+from rubicon.objc.types import CGSize, CGRect, CGPoint
 
 
 if __name__.split(".")[-1] == "__main__":
@@ -62,6 +62,7 @@ class PythonAppDelegate(ObjCClass('UIResponder')):
         try:
             lay = ObjCClass("UICollectionViewFlowLayout").new()
             lay.itemSize = CGSize(300, 300)
+            view = ObjCClass("UICollectionView").alloc().initWithFrame_collectionViewLayout_(CGRect(CGPoint(0, 0), CGSize(1000, 1000)), lay)
         except:
             logging.exception("just bad")
 
