@@ -25,5 +25,5 @@ def NSLog(s):
     extension.NSLog(NSString.from_python(s))
 
 
-for i in range(10000):
+for i in range(10):
     NSLog("foobarbazgoogoooooo\N{EURO SIGN} %s" % i)

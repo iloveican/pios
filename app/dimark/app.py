@@ -1,23 +1,28 @@
+""" whatever is dumped to syslog is visible in simulator's host Console """
+import os
+import sys
+import syslog
 import logging
-import bootstrap
+
+
+class SyslogFile:
+    def write(self, s):
+        if s.strip():
+            syslog.syslog(syslog.LOG_ERR, s.strip())
+
+
+logging.basicConfig(level=logging.DEBUG, handlers=[logging.StreamHandler(stream=SyslogFile())])
+logging.debug("bootstrap logging initialised")
+
+# sources: <your-project-dir>/app_packages
+# runtime: <path-to>/com.domain.shortname/app_packages
+libs = os.path.realpath("%s/../../../app_packages" % __file__)
+sys.path.append(libs)
+
+import nslog
 
 from rubicon.objc import objc_method, ObjCClass
 logging.debug("yippie, loaded objc")
-
-try:
-    import ctypes
-    import ctypes.util
-    extension = ctypes.cdll.LoadLibrary(ctypes.util.find_library("extension"))
-    NSLog = extension.NSLog
-    NSLog.restype = None
-    NSLog.argtypes = (...)
-
-    # autorelease block
-    # [NSString stringWithUTF8String:name]; <-- s.encode("utf-8")
-    # NSLog(that)
-    NSLog("test")
-except:
-    logging.exception("Setting up real logging")
 
 class PythonAppDelegate(ObjCClass('UIResponder')):
     def __init__(self):
