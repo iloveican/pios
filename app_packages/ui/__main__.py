@@ -47,7 +47,7 @@ class PythonAppDelegate(ObjCClass('UIResponder')):
         logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
 
         try:
-            root = ObjCClass("UIViewController").alloc().init()
+            root = ObjCClass("UIViewController").new()
             root.title = "Hello"
             root.view.backgroundColor = ObjCClass("UIColor").blueColor()
             # root.view.backgroundColor = ObjCClass("UIColor").alloc().initWithWhite_alpha_(0.5, 0.5)
