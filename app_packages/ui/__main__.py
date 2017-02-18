@@ -1,7 +1,7 @@
 import nslog
 import logging
 
-from rubicon.objc import objc_method, ObjCClass
+from rubicon.objc import objc_method, ObjCClass, send_message
 from rubicon.objc.types import CGSize, CGRect, CGPoint
 
 
@@ -32,9 +32,18 @@ if __name__.split(".")[-1] == "__main__":
 #     def collectionViewWithReuseIdentifier(self, index_path):
 #         logging.debug("viewee used")
 #         self.dequeueReusableCell("thumb", indexPath)
+UIResponder = ObjCClass('UIResponder')
+UIViewController = ObjCClass("UIViewController")
+UIColor = ObjCClass("UIColor")
+UINavigationController = ObjCClass("UINavigationController")
+UIWindow = ObjCClass("UIWindow")
+UIScreen = ObjCClass("UIScreen")
+UICollectionViewFlowLayout = ObjCClass("UICollectionViewFlowLayout")
+UICollectionView = ObjCClass("UICollectionView")
+UIApplication = ObjCClass("UIApplication")
 
 
-class PythonAppDelegate(ObjCClass('UIResponder')):
+class PythonAppDelegate(UIResponder):
     def __init__(self):
         logging.debug("instance created")
 
@@ -47,22 +56,24 @@ class PythonAppDelegate(ObjCClass('UIResponder')):
         logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
 
         try:
-            root = ObjCClass("UIViewController").new()
+            root = UIViewController.new()
             root.title = "Hello"
-            root.view.backgroundColor = ObjCClass("UIColor").blueColor()
-            # root.view.backgroundColor = ObjCClass("UIColor").alloc().initWithWhite_alpha_(0.5, 0.5)
-            nav = ObjCClass("UINavigationController").alloc().initWithRootViewController_(root)
+            root.view.backgroundColor = UIColor.blueColor()
+            # root.view.backgroundColor = UIColor.alloc().initWithWhite_alpha_(0.5, 0.5)
+            nav = UINavigationController.alloc().initWithRootViewController_(root)
 
-            win = ObjCClass("UIWindow").alloc().initWithFrame_(ObjCClass("UIScreen").mainScreen().bounds)
+            win = UIWindow.alloc().initWithFrame_(UIScreen.mainScreen().bounds)
             win.rootViewController = nav
             win.makeKeyAndVisible()
         except:
             logging.exception("terrible")
 
         try:
-            lay = ObjCClass("UICollectionViewFlowLayout").new()
+            lay = UICollectionViewFlowLayout.new()
             lay.itemSize = CGSize(300, 300)
-            view = ObjCClass("UICollectionView").alloc().initWithFrame_collectionViewLayout_(CGRect(CGPoint(0, 0), CGSize(1000, 1000)), lay)
+            view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(CGRect(CGPoint(3, 53),  # debug :)
+                                                                                       CGSize(1000, 1000)), lay)
+            UIApplication.sharedApplication().keyWindow.addSubview_(view)
         except:
             logging.exception("just bad")
 
