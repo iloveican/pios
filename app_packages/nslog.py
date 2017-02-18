@@ -1,3 +1,4 @@
+import re
 import logging
 from rubicon.objc import ObjCClass, ObjCInstance, send_message
 
@@ -27,7 +28,7 @@ def NSLog(s):
 class NSLogFile:
     def write(self, s):
         if s.strip():
-            NSLog(s.strip())
+            NSLog(re.sub('File "[^"\n]*/site-packages/', 'File "', s.strip()))
 
 
 def handler():
