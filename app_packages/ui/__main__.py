@@ -67,9 +67,10 @@ class PythonAppDelegate(UIResponder):
 
         try:
             lay = UICollectionViewFlowLayout.new()
-            lay.itemSize = CGSize(300, 300)
+            lay.itemSize = CGSize(30, 30)
             view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(CGRect(CGPoint(3, 53),  # debug :)
-                                                                                       CGSize(1000, 1000)), lay)
+                                                                                       CGSize(300, 300)), lay)
+            view.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
             self.cant = cant = CantRoller.new()
             view.setDataSource_(cant)
             view.setDelegate_(cant)
@@ -91,25 +92,24 @@ class CantRoller(UIViewController):
     """
     # def __init__(self): init is not ran, as this is instantiated via ObjC runtime
 
-    @objc_method
-    def collectionView_numberOfSections_(self) -> int:
-        logging.debug("no sec called")
-        return 3
+    # @objc_method
+    # def collectionView_numberOfSections_(self) -> int:
+        # logging.debug("no sec called")
+        # return 3
 
     @objc_method
     def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
         logging.debug("el in sec called %s", section)
-        return 3
+        return 9
 
     @objc_method
-    def collectionView_cellForItemAtIndexPath_(self, view, indexPath):
-        logging.debug("real index %s", indexPath.item)
-        rv = UICollectionViewCell.new()
+    def collectionView_cellForItemAtIndexPath_(self, view, path):
+        logging.debug("real index %s", path.item)
+        rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", path)
         import random
         rv.backgroundColor = UIColor.alloc().initWithRed_green_blue_alpha_(random.random(),
                                                                            random.random(),
-                                                                           random.random(),
-                                                                           random.random())
+                                                                           random.random(), 1.)
         return rv
 
     @objc_method
