@@ -1,7 +1,9 @@
 import nslog
+import random
 import logging
+import functools
 
-from rubicon.objc import objc_method, ObjCClass, send_message
+from rubicon.objc import objc_method, ObjCClass
 from rubicon.objc.types import CGSize, CGRect, CGPoint
 
 
@@ -32,16 +34,24 @@ if __name__.split(".")[-1] == "__main__":
 #     def collectionViewWithReuseIdentifier(self, index_path):
 #         logging.debug("viewee used")
 #         self.dequeueReusableCell("thumb", indexPath)
-UIResponder = ObjCClass('UIResponder')
-UIViewController = ObjCClass("UIViewController")
+UILabel = ObjCClass("UILabel")
 UIColor = ObjCClass("UIColor")
-UINavigationController = ObjCClass("UINavigationController")
 UIWindow = ObjCClass("UIWindow")
 UIScreen = ObjCClass("UIScreen")
-UICollectionViewFlowLayout = ObjCClass("UICollectionViewFlowLayout")
-UICollectionView = ObjCClass("UICollectionView")
+UIResponder = ObjCClass('UIResponder')
 UIApplication = ObjCClass("UIApplication")
+UIViewController = ObjCClass("UIViewController")
+UICollectionView = ObjCClass("UICollectionView")
 UICollectionViewCell = ObjCClass("UICollectionViewCell")
+UINavigationController = ObjCClass("UINavigationController")
+UICollectionViewFlowLayout = ObjCClass("UICollectionViewFlowLayout")
+
+NSCenterTextAlignment = 2
+
+
+def rect(x, y, w, h):
+    """ A la CGRectMake """
+    return CGRect(CGPoint(x, y), CGSize(w, h))
 
 
 class PythonAppDelegate(UIResponder):
@@ -68,8 +78,7 @@ class PythonAppDelegate(UIResponder):
         try:
             lay = UICollectionViewFlowLayout.new()
             lay.itemSize = CGSize(30, 30)
-            view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(CGRect(CGPoint(3, 53),  # debug :)
-                                                                                       CGSize(300, 300)), lay)
+            view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(rect(3, 53, 300, 300), lay)
             view.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
             self.cant = cant = CantRoller.new()
             view.setDataSource_(cant)
@@ -80,9 +89,23 @@ class PythonAppDelegate(UIResponder):
 
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
-        logging.debug("or ch %s %s", application, oldStatusBarOrientation)
+        logging.debug("old orientation %s", oldStatusBarOrientation)
 
 logging.debug("yippie, %s defined", PythonAppDelegate)
+
+
+labels = dict()
+
+
+def logged(f):
+    @functools.wraps(f)
+    def inner(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception:
+            logging.exception("%s", f)
+            raise
+    return inner
 
 
 class CantRoller(UIViewController):
@@ -103,13 +126,15 @@ class CantRoller(UIViewController):
         return 9
 
     @objc_method
+    # @logged
     def collectionView_cellForItemAtIndexPath_(self, view, path):
-        logging.debug("real index %s", path.item)
         rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", path)
-        import random
         rv.backgroundColor = UIColor.alloc().initWithRed_green_blue_alpha_(random.random(),
                                                                            random.random(),
-                                                                           random.random(), 1.)
+                                                                           random.random(), 1)
+        la = labels[path.item] = UILabel.alloc().initWithFrame_(rect(0, 0, 30, 30))
+        la.text = str(path.item)
+        rv.addSubview_(la)
         return rv
 
     @objc_method
