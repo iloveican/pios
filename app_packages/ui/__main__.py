@@ -41,11 +41,11 @@ UIScreen = ObjCClass("UIScreen")
 UICollectionViewFlowLayout = ObjCClass("UICollectionViewFlowLayout")
 UICollectionView = ObjCClass("UICollectionView")
 UIApplication = ObjCClass("UIApplication")
+UICollectionViewCell = ObjCClass("UICollectionViewCell")
 
 
 class PythonAppDelegate(UIResponder):
-    def __init__(self):
-        logging.debug("instance created")
+    # def __init__(self): init is not ran, as this is instantiated by ObjC runtime
 
     @objc_method
     def applicationDidBecomeActive(self) -> None:
@@ -55,24 +55,24 @@ class PythonAppDelegate(UIResponder):
     def application_didFinishLaunchingWithOptions_(self, application, oldStatusBarOrientation: int) -> None:
         logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
 
-        try:
-            root = UIViewController.new()
-            root.title = "Hello"
-            root.view.backgroundColor = UIColor.blueColor()
-            # root.view.backgroundColor = UIColor.alloc().initWithWhite_alpha_(0.5, 0.5)
-            nav = UINavigationController.alloc().initWithRootViewController_(root)
+        root = UIViewController.new()
+        root.title = "Hello"
+        root.view.backgroundColor = UIColor.blueColor()
+        # root.view.backgroundColor = UIColor.alloc().initWithWhite_alpha_(0.5, 0.5)
+        nav = UINavigationController.alloc().initWithRootViewController_(root)
 
-            win = UIWindow.alloc().initWithFrame_(UIScreen.mainScreen().bounds)
-            win.rootViewController = nav
-            win.makeKeyAndVisible()
-        except:
-            logging.exception("terrible")
+        win = UIWindow.alloc().initWithFrame_(UIScreen.mainScreen().bounds)
+        win.rootViewController = nav
+        win.makeKeyAndVisible()
 
         try:
             lay = UICollectionViewFlowLayout.new()
             lay.itemSize = CGSize(300, 300)
             view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(CGRect(CGPoint(3, 53),  # debug :)
                                                                                        CGSize(1000, 1000)), lay)
+            self.cant = cant = CantRoller.new()
+            view.setDataSource_(cant)
+            view.setDelegate_(cant)
             UIApplication.sharedApplication().keyWindow.addSubview_(view)
         except:
             logging.exception("just bad")
@@ -82,6 +82,39 @@ class PythonAppDelegate(UIResponder):
         logging.debug("or ch %s %s", application, oldStatusBarOrientation)
 
 logging.debug("yippie, %s defined", PythonAppDelegate)
+
+
+class CantRoller(UIViewController):
+    """ Implements following protocols:
+        * UICollectionViewDataSource and output 3x3 array of cells
+        * UICollectionViewDelegate and gets notified when cell is clicked
+    """
+    # def __init__(self): init is not ran, as this is instantiated via ObjC runtime
+
+    @objc_method
+    def collectionView_numberOfSections_(self) -> int:
+        logging.debug("no sec called")
+        return 3
+
+    @objc_method
+    def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
+        logging.debug("el in sec called %s", section)
+        return 3
+
+    @objc_method
+    def collectionView_cellForItemAtIndexPath_(self, view, indexPath):
+        logging.debug("real index %s", indexPath.item)
+        rv = UICollectionViewCell.new()
+        import random
+        rv.backgroundColor = UIColor.alloc().initWithRed_green_blue_alpha_(random.random(),
+                                                                           random.random(),
+                                                                           random.random(),
+                                                                           random.random())
+        return rv
+
+    @objc_method
+    def collectionView_didSelectItemAt_(self, view, indexPath):
+        logging.debug("selected cell at %s %s", indexPath, indexPath.item)
 
 
 """ Code example from Ruby:
