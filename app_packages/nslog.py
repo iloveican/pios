@@ -22,7 +22,7 @@ extension.NSLog.argtypes = (ctypes.c_void_p, )
 
 
 def NSLog(s):
-    extension.NSLog(NSString.from_python(s))
+    extension.NSLog(NSString.from_python("%@"), NSString.from_python(s))
 
 
 class NSLogFile:
@@ -33,3 +33,9 @@ class NSLogFile:
 
 def handler():
     return logging.StreamHandler(stream=NSLogFile())
+
+
+if __name__ == "__main__":
+    logging.basicConfig(handlers=[handler()])
+    for i in range(100000):
+        logging.warn("sample log line %s", i)
