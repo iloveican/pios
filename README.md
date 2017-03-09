@@ -2,6 +2,10 @@
 
 Sample project demonstrating Python on iOS, using native native UI (Apple UIKit).
 
+## Current state
+
+![screenshot](https://github.com/dimaqq/playing-with-python-on-ios/raw/master/doc/screenshot.png "Screenshot")
+
 ## Set up
 
 Grab prebuilt framework from:
