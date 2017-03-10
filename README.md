@@ -37,6 +37,14 @@ drwxr-xr-x   7 dima  staff  238  8 Feb 21:05 dimark
 
 Start XCode with `open Dishuhu\ Malala\ Arkuyaya.xcodeproj`, select target device, run with ⌘R. Simulator should show up and start this app.
 
+## Dependency upgrade
+
+For example, to use trunk Objective C bindings, do:
+
+```
+pip install -t app_packages https://github.com/pybee/rubicon-objc/archive/master.zip --upgrade
+```
+
 ## Notes
 
 I'll try to show equivalent calls for Swift, Objective-C and Python.
