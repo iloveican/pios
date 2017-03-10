@@ -45,6 +45,8 @@ UICollectionView = ObjCClass("UICollectionView")
 UICollectionViewCell = ObjCClass("UICollectionViewCell")
 UINavigationController = ObjCClass("UINavigationController")
 UICollectionViewFlowLayout = ObjCClass("UICollectionViewFlowLayout")
+NSBundle = ObjCClass("NSBundle")
+NSDictionary = ObjCClass("NSDictionary")
 
 NSCenterTextAlignment = 2
 
@@ -77,8 +79,8 @@ class PythonAppDelegate(UIResponder):
 
         try:
             lay = UICollectionViewFlowLayout.new()
-            lay.itemSize = CGSize(30, 30)
-            view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(rect(3, 53, 300, 300), lay)
+            lay.itemSize = CGSize(100, 100)
+            view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(rect(0, 60, 320, 320), lay)
             view.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
             self.cant = cant = CantRoller.new()
             view.setDataSource_(cant)
@@ -115,11 +117,6 @@ class CantRoller(UIViewController):
     """
     # def __init__(self): init is not ran, as this is instantiated via ObjC runtime
 
-    # @objc_method
-    # def collectionView_numberOfSections_(self) -> int:
-        # logging.debug("no sec called")
-        # return 3
-
     @objc_method
     def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
         logging.debug("el in sec called %s", section)
@@ -129,12 +126,8 @@ class CantRoller(UIViewController):
     # @logged
     def collectionView_cellForItemAtIndexPath_(self, view, path):
         rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", path)
-        rv.backgroundColor = UIColor.alloc().initWithRed_green_blue_alpha_(random.random(),
-                                                                           random.random(),
-                                                                           random.random(), 1)
-        la = labels[path.item] = UILabel.alloc().initWithFrame_(rect(0, 0, 30, 30))
-        la.text = str(path.item)
-        rv.addSubview_(la)
+        view = NSBundle.mainBundle().loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject()
+        rv.addSubview_(view)
         return rv
 
     @objc_method

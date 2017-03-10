@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32B4F9281E72D3FA00E64245 /* knob.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32B4F9271E72D3FA00E64245 /* knob.xib */; };
 		601399B41D2E6B0600C7A1CB /* XZ.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 601399B31D2E6B0600C7A1CB /* XZ.framework */; };
 		6023B23D1C27D20F006F2562 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6023B23C1C27D20F006F2562 /* libsqlite3.tbd */; };
 		6023B23F1C27D218006F2562 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6023B23E1C27D218006F2562 /* libz.tbd */; };
@@ -23,6 +24,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		32B4F9271E72D3FA00E64245 /* knob.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = knob.xib; sourceTree = "<group>"; };
 		601399B31D2E6B0600C7A1CB /* XZ.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = XZ.framework; sourceTree = "<group>"; };
 		6023B23C1C27D20F006F2562 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		6023B23E1C27D218006F2562 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -64,6 +66,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32B4F9261E72D3BB00E64245 /* Nibs */ = {
+			isa = PBXGroup;
+			children = (
+				32B4F9271E72D3FA00E64245 /* knob.xib */,
+			);
+			name = Nibs;
+			sourceTree = "<group>";
+		};
 		60796ED919190F4100A9926B = {
 			isa = PBXGroup;
 			children = (
@@ -101,6 +111,7 @@
 		60796EEB19190F4100A9926B /* dimark */ = {
 			isa = PBXGroup;
 			children = (
+				32B4F9261E72D3BB00E64245 /* Nibs */,
 				608C6CCC1B3FF4DF00BD512E /* app */,
 				60F0BABF191FC868006EC268 /* app_packages */,
 				60796EF719190F4100A9926B /* Images.xcassets */,
@@ -172,6 +183,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32B4F9281E72D3FA00E64245 /* knob.xib in Resources */,
 				60796EF019190F4100A9926B /* InfoPlist.strings in Resources */,
 				60796EF819190F4100A9926B /* Images.xcassets in Resources */,
 			);
