@@ -12,28 +12,6 @@ if __name__.split(".")[-1] == "__main__":
     logging.root.addHandler(nslog.handler())
     logging.debug("yep, in main")
 
-
-# class Knob(ObjCClass("UICollectionViewCell")):
-#     @objc_method
-#     # def collectionView(self, cellForItemAtIndexPath: indexPath):
-#     def collectionView(self, indexPath):
-#         logging.debug("collection view %s", [self, indexPath])
-# 
-# 
-# class Knobs(ObjCClass("UICollectionView")):
-#     @objc_method
-#     def numberOfSections(self) -> int:
-#         return 3
-# 
-#     @objc_method
-#     def collectionView(self, section: int) -> int:
-#         return 4
-# 
-#     @objc_method
-#     # def collectionViewWithReuseIdentifier(self, index_path) -> ObjCClass("UICollectionViewCell"):
-#     def collectionViewWithReuseIdentifier(self, index_path):
-#         logging.debug("viewee used")
-#         self.dequeueReusableCell("thumb", indexPath)
 UILabel = ObjCClass("UILabel")
 UIColor = ObjCClass("UIColor")
 UIWindow = ObjCClass("UIWindow")
@@ -46,14 +24,30 @@ UICollectionViewCell = ObjCClass("UICollectionViewCell")
 UINavigationController = ObjCClass("UINavigationController")
 UICollectionViewFlowLayout = ObjCClass("UICollectionViewFlowLayout")
 NSBundle = ObjCClass("NSBundle")
+NSArray = ObjCClass("NSArray")
+NSMutableArray = ObjCClass("NSMutableArray")
 NSDictionary = ObjCClass("NSDictionary")
-
-NSCenterTextAlignment = 2
 
 
 def rect(x, y, w, h):
     """ A la CGRectMake """
     return CGRect(CGPoint(x, y), CGSize(w, h))
+
+
+def py(o):
+    logging.debug("input %s", o.__dict__)
+    return o
+
+
+def test_py():
+    a = NSArray.alloc().init()
+    logging.info("NSArray %s", (a, py(a)))
+
+    m = NSMutableArray.alloc().init()
+    logging.info("NSMutableArray %s", (m, py(m)))
+
+    d = NSDictionary.alloc().init()
+    logging.info("NSDictionary %s", (d, py(d)))
 
 
 class PythonAppDelegate(UIResponder):
@@ -77,17 +71,30 @@ class PythonAppDelegate(UIResponder):
         win.rootViewController = nav
         win.makeKeyAndVisible()
 
-        try:
-            lay = UICollectionViewFlowLayout.new()
-            lay.itemSize = CGSize(100, 100)
-            view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(rect(0, 60, 320, 320), lay)
-            view.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
-            self.cant = cant = CantRoller.new()
-            view.setDataSource_(cant)
-            view.setDelegate_(cant)
+        if 1:
+            objs = NSBundle.mainBundle().loadNibNamed_owner_options_("main", self, NSDictionary.alloc().init())
+            try:
+                test_py()
+                # for o in objs:
+                    # logging.info("o %s", o)
+            except:
+                logging.exception("barf")
+            view = NSBundle.mainBundle().loadNibNamed_owner_options_("main", self, NSDictionary.alloc().init()).firstObject()
+            logging.warn("main view %s", view)
             UIApplication.sharedApplication().keyWindow.addSubview_(view)
-        except:
-            logging.exception("just bad")
+
+        if 0:
+            try:
+                lay = UICollectionViewFlowLayout.new()
+                lay.itemSize = CGSize(100, 100)
+                view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(rect(0, 60, 320, 320), lay)
+                view.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
+                self.cant = cant = CantRoller.new()
+                view.setDataSource_(cant)
+                view.setDelegate_(cant)
+                UIApplication.sharedApplication().keyWindow.addSubview_(view)
+            except:
+                logging.exception("just bad")
 
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:

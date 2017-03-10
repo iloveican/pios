@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		325C73161E730DEC00F69936 /* main.xib in Resources */ = {isa = PBXBuildFile; fileRef = 325C73151E730DEC00F69936 /* main.xib */; };
 		32B4F9281E72D3FA00E64245 /* knob.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32B4F9271E72D3FA00E64245 /* knob.xib */; };
 		601399B41D2E6B0600C7A1CB /* XZ.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 601399B31D2E6B0600C7A1CB /* XZ.framework */; };
 		6023B23D1C27D20F006F2562 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6023B23C1C27D20F006F2562 /* libsqlite3.tbd */; };
@@ -24,6 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		325C73151E730DEC00F69936 /* main.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = main.xib; sourceTree = "<group>"; };
 		32B4F9271E72D3FA00E64245 /* knob.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = knob.xib; sourceTree = "<group>"; };
 		601399B31D2E6B0600C7A1CB /* XZ.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = XZ.framework; sourceTree = "<group>"; };
 		6023B23C1C27D20F006F2562 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
@@ -70,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				32B4F9271E72D3FA00E64245 /* knob.xib */,
+				325C73151E730DEC00F69936 /* main.xib */,
 			);
 			name = Nibs;
 			sourceTree = "<group>";
@@ -185,6 +188,7 @@
 			files = (
 				32B4F9281E72D3FA00E64245 /* knob.xib in Resources */,
 				60796EF019190F4100A9926B /* InfoPlist.strings in Resources */,
+				325C73161E730DEC00F69936 /* main.xib in Resources */,
 				60796EF819190F4100A9926B /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
