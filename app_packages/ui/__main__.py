@@ -34,6 +34,10 @@ def rect(x, y, w, h):
     return CGRect(CGPoint(x, y), CGSize(w, h))
 
 
+def pylist(a):
+    return [a.objectAtIndex_(i) for i in range(a.count)]
+
+
 def py(o):
     logging.debug("input %s", o.__dict__)
     return o
@@ -50,6 +54,17 @@ def test_py():
     logging.info("NSDictionary %s", (d, py(d)))
 
 
+def all_views(v):
+    yield v
+    for vv in pylist(v.subviews()):
+        yield from all_views(vv)
+
+def find_view(v, id="something"):
+    for vv in all_views(v):
+        if vv.restorationIdentifier == id:
+            return vv
+
+
 class PythonAppDelegate(UIResponder):
     # def __init__(self): init is not ran, as this is instantiated by ObjC runtime
 
@@ -62,39 +77,32 @@ class PythonAppDelegate(UIResponder):
         logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
 
         root = UIViewController.new()
-        root.title = "Hello"
-        root.view.backgroundColor = UIColor.blueColor()
-        # root.view.backgroundColor = UIColor.alloc().initWithWhite_alpha_(0.5, 0.5)
+        root.title = "Root title"
         nav = UINavigationController.alloc().initWithRootViewController_(root)
 
-        win = UIWindow.alloc().initWithFrame_(UIScreen.mainScreen().bounds)
+        win = UIWindow.alloc().initWithFrame_(UIScreen.mainScreen.bounds)
         win.rootViewController = nav
         win.makeKeyAndVisible()
 
-        if 1:
-            objs = NSBundle.mainBundle().loadNibNamed_owner_options_("main", self, NSDictionary.alloc().init())
-            try:
-                test_py()
-                # for o in objs:
-                    # logging.info("o %s", o)
-            except:
-                logging.exception("barf")
-            view = NSBundle.mainBundle().loadNibNamed_owner_options_("main", self, NSDictionary.alloc().init()).firstObject()
-            logging.warn("main view %s", view)
-            UIApplication.sharedApplication().keyWindow.addSubview_(view)
+        root.view = NSBundle.mainBundle.loadNibNamed_owner_options_("main", self, NSDictionary.alloc().init()).firstObject()
+        coll = find_view(root.view, "collectionview")
+        logging.info("coll %s", coll)
+        coll.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
+        self.cant = cant = CantRoller.new()
+        coll.setDataSource_(cant)
+        coll.setDelegate_(cant)
 
-        if 0:
-            try:
-                lay = UICollectionViewFlowLayout.new()
-                lay.itemSize = CGSize(100, 100)
-                view = UICollectionView.alloc().initWithFrame_collectionViewLayout_(rect(0, 60, 320, 320), lay)
-                view.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
-                self.cant = cant = CantRoller.new()
-                view.setDataSource_(cant)
-                view.setDelegate_(cant)
-                UIApplication.sharedApplication().keyWindow.addSubview_(view)
-            except:
-                logging.exception("just bad")
+        #    try:
+        #        lay = UICollectionViewFlowLayout.new()
+        #        lay.itemSize = CGSize(100, 100)
+        #        coll = UICollectionView.alloc().initWithFrame_collectionViewLayout_(rect(0, 60, 320, 320), lay)
+        #        coll.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
+        #        self.cant = cant = CantRoller.new()
+        #        coll.setDataSource_(cant)
+        #        coll.setDelegate_(cant)
+        #        # UIApplication.sharedApplication.keyWindow.addSubview_(coll)
+        #    except:
+        #        logging.exception("just bad")
 
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
@@ -127,14 +135,15 @@ class CantRoller(UIViewController):
     @objc_method
     def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
         logging.debug("el in sec called %s", section)
-        return 9
+        return 16
 
     @objc_method
     # @logged
     def collectionView_cellForItemAtIndexPath_(self, view, path):
         rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", path)
-        view = NSBundle.mainBundle().loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject()
+        view = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject()
         rv.addSubview_(view)
+        logging.info("created cell %s", rv)
         return rv
 
     @objc_method
