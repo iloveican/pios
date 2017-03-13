@@ -2,8 +2,8 @@ import nslog
 import logging
 import functools
 
-from rubicon.objc import objc_method, ObjCClass
-from rubicon.objc.types import CGSize, CGRect, CGPoint
+from rubicon.objc import objc_method, ObjCClass, get_selector, send_message
+from rubicon.objc.types import CGSize, CGRect, CGPoint, NSTimeInterval
 
 import game
 
@@ -13,6 +13,7 @@ if __name__.split(".")[-1] == "__main__":
     logging.root.addHandler(nslog.handler())
     logging.debug("yep, in main")
 
+UIView = ObjCClass("UIView")
 UILabel = ObjCClass("UILabel")
 UIColor = ObjCClass("UIColor")
 UIWindow = ObjCClass("UIWindow")
@@ -23,11 +24,14 @@ UIViewController = ObjCClass("UIViewController")
 UICollectionView = ObjCClass("UICollectionView")
 UICollectionViewCell = ObjCClass("UICollectionViewCell")
 UINavigationController = ObjCClass("UINavigationController")
+UITapGestureRecognizer = ObjCClass("UITapGestureRecognizer")
 UICollectionViewFlowLayout = ObjCClass("UICollectionViewFlowLayout")
 NSBundle = ObjCClass("NSBundle")
 NSArray = ObjCClass("NSArray")
 NSMutableArray = ObjCClass("NSMutableArray")
 NSDictionary = ObjCClass("NSDictionary")
+
+UIViewAnimationOptionTransitionFlipFromBottom  = 7 << 20
 
 
 def rect(x, y, w, h):
@@ -89,21 +93,10 @@ class PythonAppDelegate(UIResponder):
         coll = find_view(root.view, "collectionview")
         logging.info("coll %s", coll)
         coll.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
-        self.cant = cant = CantRoller.new()
-        coll.setDataSource_(cant)
-        coll.setDelegate_(cant)
-
-        #    try:
-        #        lay = UICollectionViewFlowLayout.new()
-        #        lay.itemSize = CGSize(100, 100)
-        #        coll = UICollectionView.alloc().initWithFrame_collectionViewLayout_(rect(0, 60, 320, 320), lay)
-        #        coll.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
-        #        self.cant = cant = CantRoller.new()
-        #        coll.setDataSource_(cant)
-        #        coll.setDelegate_(cant)
-        #        # UIApplication.sharedApplication.keyWindow.addSubview_(coll)
-        #    except:
-        #        logging.exception("just bad")
+        self.cant = CantRoller.new()
+        self.cant.reset()
+        coll.setDataSource_(self.cant)
+        coll.setDelegate_(self.cant)
 
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
@@ -134,12 +127,16 @@ class CantRoller(UIViewController):
     # def __init__(self): init is not ran, as this is instantiated via ObjC runtime
     size = open = None
 
-
+    @objc_method
     def reset(self):
         self.size = 16
         self.open = [False] * self.size
         self.solved = [False] * self.size
         self.tiles = game.get_tiles(self.size)
+        self.tapmap = dict()
+        self.cells = dict()
+        self.closed = dict()
+        self.opened = dict()
 
     @objc_method
     def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
@@ -147,13 +144,33 @@ class CantRoller(UIViewController):
         return 16
 
     @objc_method
-    # @logged
+    @logged
     def collectionView_cellForItemAtIndexPath_(self, view, path):
+        i = path.item
         rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", path)
-        view = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject()
-        rv.addSubview_(view)
-        logging.info("created cell %s", rv)
+        self.cells[i] = rv
+        self.closed[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject()
+        self.opened[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.alloc().init()).firstObject()
+        rv.addSubview_(self.closed[i])
+        rec = UITapGestureRecognizer.alloc().initWithTarget_action_(self, get_selector("tap:"))
+        self.tapmap[rec.ptr.value] = i
+        self.closed[i].addGestureRecognizer_(rec)
         return rv
+
+    @objc_method
+    @logged
+    def tap_(self, rec):
+        i = self.tapmap[rec.ptr.value]
+        old, new = (self.opened[i], self.closed[i]) if self.open[i] else (self.closed[i], self.opened[i])
+        new = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.alloc().init()).firstObject()
+        send_message(UIView,
+                     b"transitionFromView:toView:duration:options:completion:",
+                     old,
+                     new,
+                     NSTimeInterval(3),
+                     UIViewAnimationOptionTransitionFlipFromBottom,
+                     None)
+        self.open[i] ^= True
 
     @objc_method
     def collectionView_didSelectItemAt_(self, view, indexPath):
