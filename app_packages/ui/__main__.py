@@ -1,10 +1,11 @@
 import nslog
-import random
 import logging
 import functools
 
 from rubicon.objc import objc_method, ObjCClass
 from rubicon.objc.types import CGSize, CGRect, CGPoint
+
+import game
 
 
 if __name__.split(".")[-1] == "__main__":
@@ -131,6 +132,14 @@ class CantRoller(UIViewController):
         * UICollectionViewDelegate and gets notified when cell is clicked
     """
     # def __init__(self): init is not ran, as this is instantiated via ObjC runtime
+    size = open = None
+
+
+    def reset(self):
+        self.size = 16
+        self.open = [False] * self.size
+        self.solved = [False] * self.size
+        self.tiles = game.get_tiles(self.size)
 
     @objc_method
     def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
