@@ -135,8 +135,7 @@ class CantRoller(UIViewController):
         self.tiles = game.get_tiles(self.size)
         self.tapmap = dict()
         self.cells = dict()
-        self.closed = dict()
-        self.opened = dict()
+        self.view = dict()
 
     @objc_method
     def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
@@ -149,20 +148,29 @@ class CantRoller(UIViewController):
         i = path.item
         rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", path)
         self.cells[i] = rv
-        self.closed[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject()
-        self.opened[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.alloc().init()).firstObject()
-        rv.addSubview_(self.closed[i])
+        self.views[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject()
+        self.views[i] = self.new_tile(i, open=False)
+        rv.addSubview_(self.views[i])
         rec = UITapGestureRecognizer.alloc().initWithTarget_action_(self, get_selector("tap:"))
         self.tapmap[rec.ptr.value] = i
-        self.closed[i].addGestureRecognizer_(rec)
+        rv.addGestureRecognizer_(rec)
         return rv
+
+    def new_tile(self, i, open=True):
+        new = NSBundle.mainBundle.loadNibNamed_owner_options_("open" if open else "knob", self, NSDictionary.alloc().init()).firstObject()
+        return new
 
     @objc_method
     @logged
     def tap_(self, rec):
         i = self.tapmap[rec.ptr.value]
-        old, new = (self.opened[i], self.closed[i]) if self.open[i] else (self.closed[i], self.opened[i])
-        new = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.alloc().init()).firstObject()
+        old = self.views[i]
+        new = self.new_tile(i, open=not self.open[i])
+        new = NSBundle.mainBundle.loadNibNamed_owner_options_("open" if self.open[i] else "knob", self, NSDictionary.alloc().init()).firstObject()
+        # old, new = (self.opened[i], self.views[i]) if self.open[i] else (self.views[i], self.opened[i])
+        ...
+        logging.warn("about to swap at %s", i)
+        logging.warn("about to swap %s %s", old, new)
         send_message(UIView,
                      b"transitionFromView:toView:duration:options:completion:",
                      old,
