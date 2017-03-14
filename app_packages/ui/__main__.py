@@ -151,18 +151,21 @@ class CantRoller(UIViewController):
         self.cells[i] = rv
         self.closed[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject()
         self.opened[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.alloc().init()).firstObject()
+        self.closed[i].retain()
+        self.opened[i].retain()
         rv.addSubview_(self.closed[i])
         rec = UITapGestureRecognizer.alloc().initWithTarget_action_(self, get_selector("tap:"))
         self.tapmap[rec.ptr.value] = i
-        self.closed[i].addGestureRecognizer_(rec)
+        rv.addGestureRecognizer_(rec)
         return rv
 
     @objc_method
     @logged
     def tap_(self, rec):
         i = self.tapmap[rec.ptr.value]
+        logging.info("tap %s %s", i, self.open[i])
         old, new = (self.opened[i], self.closed[i]) if self.open[i] else (self.closed[i], self.opened[i])
-        new = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.alloc().init()).firstObject()
+        logging.info("%s -> %s", old, new)
         send_message(UIView,
                      b"transitionFromView:toView:duration:options:completion:",
                      old,
