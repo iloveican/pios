@@ -82,7 +82,13 @@ class PythonAppDelegate(UIResponder):
         logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
 
         root = UIViewController.new()
-        root.title = "Root title"
+        # TODO how to get rid of title?
+        # root.title = "Root title"
+        # root.titleView = None
+        # root.titleView.setHidden(True)
+        # root.titleView = UIView.alloc().initWithFrame_(rect(0, 0, 0, 0))
+        # root.title = ""
+
         nav = UINavigationController.alloc().initWithRootViewController_(root)
 
         win = UIWindow.alloc().initWithFrame_(UIScreen.mainScreen.bounds)
