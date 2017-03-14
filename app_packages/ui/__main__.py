@@ -169,6 +169,9 @@ class CantRoller(UIViewController):
     @logged
     def tap_(self, rec):
         i = self.tapmap[rec.ptr.value]
+        if self.solved[i]:
+            return
+
         logging.info("tap %s %s", i, self.open[i])
         old, new = (self.opened[i], self.closed[i]) if self.open[i] else (self.closed[i], self.opened[i])
         logging.info("%s -> %s", old, new)
