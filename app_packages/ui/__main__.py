@@ -147,7 +147,6 @@ def get_cant_roller():
             cells[i] = rv
             closed[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.new()).firstObject()
             opened[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.new()).firstObject()
-            logging.info("open ids %s", [v.restorationIdentifier for v in all_views(opened[i])])
             label = find_view(opened[i], "text")
             label.text = tiles[i][1]
             closed[i].retain()
@@ -162,10 +161,20 @@ def get_cant_roller():
         @logged
         def tap_(self, rec):
             i = tapmap[rec.ptr.value]
-            if solved[i]:
+
+            # block already solved tiles; block current open tile
+            if solved[i] or last == i:
                 return
 
             nonlocal last
+            if last is not None and tiles[last][0] == tiles[i][0]:
+                solved[last] = True
+                solved[i] = True
+                last = None
+                flip(self, i)
+                return
+
+            # after solving a tile or at the start of the game
             if last is not None:
                 flip(self, last, back=True)
 
