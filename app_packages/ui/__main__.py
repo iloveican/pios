@@ -1,5 +1,4 @@
 import nslog
-import sound
 import logging
 import functools
 
@@ -7,6 +6,7 @@ from rubicon.objc import objc_method, ObjCClass, get_selector, send_message
 from rubicon.objc.types import CGSize, CGRect, CGPoint, NSTimeInterval
 
 import game
+import sound
 
 
 if __name__.split(".")[-1] == "__main__":
@@ -69,9 +69,6 @@ class PythonAppDelegate(UIResponder):
 
         root = UIViewController.new()
 
-        # nav = UINavigationController.alloc().initWithRootViewController_(root)
-        # win.rootViewController = nav
-
         win = UIWindow.alloc().initWithFrame_(UIScreen.mainScreen.bounds)
         win.rootViewController = root
         win.makeKeyAndVisible()
@@ -82,7 +79,7 @@ class PythonAppDelegate(UIResponder):
         coll.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
         self.cant = get_cant_roller()
         coll.setDataSource_(self.cant)
-        coll.setDelegate_(self.cant)
+        # coll.setDelegate_(self.cant)
 
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
@@ -90,9 +87,6 @@ class PythonAppDelegate(UIResponder):
 
 
 logging.debug("yippie, %s defined", PythonAppDelegate)
-
-
-labels = dict()
 
 
 def logged(f):
@@ -108,7 +102,7 @@ def logged(f):
 
 def get_cant_roller():
     size = 16
-    tiles = game.get_tiles(size)
+    tiles = None
     solved = [False] * size
     closed = dict()
     opened = dict()
@@ -117,9 +111,22 @@ def get_cant_roller():
     last = None
 
     def reset():
-        logging.warn("TODO start new game")
+        nonlocal size, last, tiles
+        size = 16
+        tiles = game.get_tiles(size)
+        solved[:] = [False] * size
+        last = None
 
-    def flip(cant, i, back=False):
+        # FIXME ugly hack
+        for i, view in opened.items():
+            label = find_view(view, "text")
+            label.text = tiles[i][1]
+
+        # same here
+        for i in cells:
+            flip(i, back=True)
+
+    def flip(i, back=False):
         old, new = (opened[i], closed[i]) if back else (closed[i], opened[i])
         send_message(UIView,
                      b"transitionFromView:toView:duration:options:completion:",
@@ -178,27 +185,21 @@ def get_cant_roller():
                     return
                 else:
                     last = None
-                    flip(self, i)
+                    flip(i)
                     sound.match()
                     return
 
             # after solving a tile or at the start of the game
             if last is not None:
-                flip(self, last, back=True)
+                flip(last, back=True)
 
-            flip(self, i)
+            flip(i)
             last = i
             sound.tap()
 
-        @objc_method
-        def collectionView_didSelectItemAt_(self, view, indexPath):
-            logging.debug("selected cell at %s %s", indexPath, indexPath.item)
+        # @objc_method
+        # def collectionView_didSelectItemAt_(self, view, indexPath):
+        #     logging.debug("selected cell at %s %s", indexPath, indexPath.item)
 
+    reset()  # or load saved state
     return CantRoller.new()
-
-
-""" Code example from Ruby:
-        alert = UIAlertView.new
-        alert.message = "Hello iOS!"
-        alert.show
-"""
