@@ -179,13 +179,13 @@ def get_cant_roller():
             if last is not None and tiles[last][0] == tiles[i][0]:
                 solved[last] = True
                 solved[i] = True
+                last = None
+                flip(i)
                 if all(solved):
                     sound.victory()
-                    reset()
+                    self.performSelector_withObject_afterDelay_(get_selector("reset:"), None, NSTimeInterval(1))
                     return
                 else:
-                    last = None
-                    flip(i)
                     sound.match()
                     return
 
@@ -200,6 +200,10 @@ def get_cant_roller():
         # @objc_method
         # def collectionView_didSelectItemAt_(self, view, indexPath):
         #     logging.debug("selected cell at %s %s", indexPath, indexPath.item)
+
+        @objc_method
+        def reset_(self):
+            reset()
 
     reset()  # or load saved state
     return CantRoller.new()
