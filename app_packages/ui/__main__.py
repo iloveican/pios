@@ -1,6 +1,7 @@
 import nslog
 import logging
 import functools
+import collections.abc
 
 from rubicon.objc import objc_method, ObjCClass, get_selector, send_message
 from rubicon.objc.types import CGSize, CGRect, CGPoint, NSTimeInterval
@@ -94,8 +95,10 @@ class PythonAppDelegate(UIResponder):
         coll = find_view(root.view, "collectionview")
         logging.info("coll %s", coll)
         coll.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
-        self.cant = CantRoller.new()
-        self.cant.reset()
+        cells = Source()
+        self.cant = cells.ob
+        # self.cant = CantRoller.new()
+        # self.cant.reset()
         coll.setDataSource_(self.cant)
         coll.setDelegate_(self.cant)
 
@@ -118,6 +121,47 @@ def logged(f):
             logging.exception("%s", f)
             raise
     return inner
+
+
+class Source(collections.abc.Sequence):
+    def __init__(self):
+        self.ob = _Source.new()
+        send_message(self.ob, b"bind", self)
+        self.content = [NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.alloc().init()).firstObject() for _i in range(16)]
+
+    def __len__(self):
+        return len(self.content)
+
+    def __getitem__(self, i):
+        return self.content[i]
+
+    def something(self):
+        # for ..
+        rec = UITapGestureRecognizer.alloc().initWithTarget_action_(self, get_selector("tap:"))
+        rv.addGestureRecognizer_(rec)
+
+
+class _Source(UIViewController):
+    @objc_method
+    def bind(self, py):
+        self.py = py
+
+    @objc_method
+    def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
+        return len(self.py)
+
+    @objc_method
+    def collectionView_cellForItemAtIndexPath_(self, view, indexPath):
+        i = indexPath.item
+        rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", indexPath)
+        rv.prepareForReuse_()
+        rv.addSubView_(self.py[i])
+        return rv
+
+    @objc_method
+    def collectionView_didSelectItemAt_(self, view, indexPath):
+        i = indexPath.item
+        logging.debug("selected cell at %s", i)
 
 
 class CantRoller(UIViewController):
