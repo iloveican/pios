@@ -79,7 +79,6 @@ class PythonAppDelegate(UIResponder):
         logging.info("coll %s", coll)
         coll.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
         self.cant = get_cant_roller()
-        self.cant.reset()
         coll.setDataSource_(self.cant)
         coll.setDelegate_(self.cant)
 
@@ -105,10 +104,24 @@ def logged(f):
 
 
 def get_cant_roller():
+    size = 16
+    tiles = game.get_tiles(size)
+    solved = [False] * size
     closed = dict()
     opened = dict()
-    def helper(cant, arg):
-        logging.warn("helper called with %s", [cant, arg])
+    tapmap = dict()
+    cells = dict()
+    last = None
+
+    def flip(cant, i, back=False):
+        old, new = (opened[i], closed[i]) if back else (closed[i], opened[i])
+        send_message(UIView,
+                     b"transitionFromView:toView:duration:options:completion:",
+                     old,
+                     new,
+                     NSTimeInterval(0.3),
+                     UIViewAnimationOptionTransitionFlipFromBottom,
+                     None)
 
     class CantRoller(UIViewController):
         """ Implements following protocols:
@@ -116,16 +129,10 @@ def get_cant_roller():
             * UICollectionViewDelegate and gets notified when cell is clicked
         """
         # def __init__(self): init is not ran, as this is instantiated via ObjC runtime
-        size = open = None
 
         @objc_method
         def reset(self):
-            self.size = 16
-            self.open = [False] * self.size
-            self.solved = [False] * self.size
-            self.tiles = game.get_tiles(self.size)
-            self.tapmap = dict()
-            self.cells = dict()
+            pass
 
         @objc_method
         def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
@@ -137,37 +144,30 @@ def get_cant_roller():
         def collectionView_cellForItemAtIndexPath_(self, view, path):
             i = path.item
             rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", path)
-            self.cells[i] = rv
+            cells[i] = rv
             closed[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.new()).firstObject()
             opened[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.new()).firstObject()
             closed[i].retain()
             opened[i].retain()
             rv.addSubview_(closed[i])
             rec = UITapGestureRecognizer.alloc().initWithTarget_action_(self, get_selector("tap:"))
-            self.tapmap[rec.ptr.value] = i
+            tapmap[rec.ptr.value] = i
             rv.addGestureRecognizer_(rec)
             return rv
 
         @objc_method
         @logged
         def tap_(self, rec):
-            i = self.tapmap[rec.ptr.value]
-            if self.solved[i]:
+            i = tapmap[rec.ptr.value]
+            if solved[i]:
                 return
 
-            helper(self, 42)
+            nonlocal last
+            if last is not None:
+                flip(self, last, back=True)
 
-            logging.info("tap %s %s", i, self.open[i])
-            old, new = (opened[i], closed[i]) if self.open[i] else (closed[i], opened[i])
-            logging.info("%s -> %s", old, new)
-            send_message(UIView,
-                         b"transitionFromView:toView:duration:options:completion:",
-                         old,
-                         new,
-                         NSTimeInterval(3),
-                         UIViewAnimationOptionTransitionFlipFromBottom,
-                         None)
-            self.open[i] ^= True
+            flip(self, i)
+            last = i
 
         @objc_method
         def collectionView_didSelectItemAt_(self, view, indexPath):
