@@ -31,7 +31,7 @@ NSArray = ObjCClass("NSArray")
 NSMutableArray = ObjCClass("NSMutableArray")
 NSDictionary = ObjCClass("NSDictionary")
 
-UIViewAnimationOptionTransitionFlipFromBottom  = 7 << 20
+UIViewAnimationOptionTransitionFlipFromBottom = 7 << 20
 
 
 def rect(x, y, w, h):
@@ -47,6 +47,7 @@ def all_views(v):
     yield v
     for vv in pylist(v.subviews()):
         yield from all_views(vv)
+
 
 def find_view(v, id="something"):
     for vv in all_views(v):
@@ -86,6 +87,7 @@ class PythonAppDelegate(UIResponder):
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
         logging.debug("old orientation %s", oldStatusBarOrientation)
 
+
 logging.debug("yippie, %s defined", PythonAppDelegate)
 
 
@@ -101,6 +103,16 @@ def logged(f):
             logging.exception("%s", f)
             raise
     return inner
+
+
+@logged
+def play_sound():
+    import ctypes
+    import ctypes.util
+    audio = ctypes.cdll.LoadLibrary(ctypes.util.find_library("AudioToolbox"))
+    audio.AudioServicesPlaySystemSound.restype = None
+    audio.AudioServicesPlaySystemSound.argtypes = (ctypes.c_int, )
+    audio.AudioServicesPlaySystemSound(1007)
 
 
 def get_cant_roller():
