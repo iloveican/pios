@@ -1,4 +1,5 @@
 import nslog
+import sound
 import logging
 import functools
 
@@ -105,16 +106,6 @@ def logged(f):
     return inner
 
 
-@logged
-def play_sound():
-    import ctypes
-    import ctypes.util
-    audio = ctypes.cdll.LoadLibrary(ctypes.util.find_library("AudioToolbox"))
-    audio.AudioServicesPlaySystemSound.restype = None
-    audio.AudioServicesPlaySystemSound.argtypes = (ctypes.c_int, )
-    audio.AudioServicesPlaySystemSound(1007)
-
-
 def get_cant_roller():
     size = 16
     tiles = game.get_tiles(size)
@@ -124,6 +115,9 @@ def get_cant_roller():
     tapmap = dict()
     cells = dict()
     last = None
+
+    def reset():
+        logging.warn("TODO start new game")
 
     def flip(cant, i, back=False):
         old, new = (opened[i], closed[i]) if back else (closed[i], opened[i])
@@ -137,14 +131,10 @@ def get_cant_roller():
 
     class CantRoller(UIViewController):
         """ Implements following protocols:
-            * UICollectionViewDataSource and output 3x3 array of cells
+            * UICollectionViewDataSource and output 4x4 array of cells
             * UICollectionViewDelegate and gets notified when cell is clicked
         """
         # def __init__(self): init is not ran, as this is instantiated via ObjC runtime
-
-        @objc_method
-        def reset(self):
-            pass
 
         @objc_method
         def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
@@ -172,19 +162,25 @@ def get_cant_roller():
         @objc_method
         @logged
         def tap_(self, rec):
+            nonlocal last
             i = tapmap[rec.ptr.value]
 
             # block already solved tiles; block current open tile
             if solved[i] or last == i:
                 return
 
-            nonlocal last
             if last is not None and tiles[last][0] == tiles[i][0]:
                 solved[last] = True
                 solved[i] = True
-                last = None
-                flip(self, i)
-                return
+                if all(solved):
+                    sound.victory()
+                    reset()
+                    return
+                else:
+                    last = None
+                    flip(self, i)
+                    sound.match()
+                    return
 
             # after solving a tile or at the start of the game
             if last is not None:
@@ -192,6 +188,7 @@ def get_cant_roller():
 
             flip(self, i)
             last = i
+            sound.tap()
 
         @objc_method
         def collectionView_didSelectItemAt_(self, view, indexPath):
