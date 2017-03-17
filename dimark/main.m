@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
 
         // Special environment to prefer .pyo; also, don't write bytecode
         // because the process will not have write permissions on the device.
-        putenv("PYTHONOPTIMIZE=1");
+        putenv("PYTHONOPTIMIZE=");
         putenv("PYTHONDONTWRITEBYTECODE=1");
 
         python_home = [NSString stringWithFormat:@"%@/Library/Python.framework/Resources", resourcePath, nil];
