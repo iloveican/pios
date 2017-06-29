@@ -7,12 +7,12 @@ numbers = [l.split() for l in """
 """.strip().splitlines()]
 
 
-operators = "eq ne ge le gt lt pw ls tu st".split(), "== != => <= > < ** [] () {}".split()
+braille = "⠼⠚ ⠼⠁ ⠼⠃ ⠼⠉ ⠼⠙ ⠼⠑ ⠼⠋ ⠼⠛ ⠼⠓ ⠼⠊".split(), list("0123456789")
 
 
 def get_tiles(size):
     assert not size % 2
-    source = random.choice((numbers, operators))
+    source = random.choice((numbers, braille))
     game = random.sample(list(range(len(source[0]))), size // 2)
     tiles = sum(([(i, source[0][i]), (i, source[1][i])] for i in game), [])
     random.shuffle(tiles)
