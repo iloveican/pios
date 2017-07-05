@@ -40,13 +40,9 @@ def rect(x, y, w, h):
     return CGRect(CGPoint(x, y), CGSize(w, h))
 
 
-def pylist(a):
-    return [a.objectAtIndex_(i) for i in range(len(a))]
-
-
 def all_views(v):
     yield v
-    for vv in pylist(v.subviews()):
+    for vv in v.subviews():
         yield from all_views(vv)
 
 
