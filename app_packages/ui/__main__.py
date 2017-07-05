@@ -2,7 +2,7 @@ import nslog
 import logging
 import functools
 
-from rubicon.objc import objc_method, ObjCClass, get_selector, send_message
+from rubicon.objc import objc_method, ObjCClass, SEL, send_message
 from rubicon.objc.types import CGSize, CGRect, CGPoint, NSTimeInterval
 
 import game
@@ -41,7 +41,7 @@ def rect(x, y, w, h):
 
 
 def pylist(a):
-    return [a.objectAtIndex_(i) for i in range(a.count)]
+    return [a.objectAtIndex_(i) for i in range(len(a))]
 
 
 def all_views(v):
@@ -161,7 +161,7 @@ def get_cant_roller():
             closed[i].retain()
             opened[i].retain()
             rv.addSubview_(closed[i])
-            rec = UITapGestureRecognizer.alloc().initWithTarget_action_(self, get_selector("tap:"))
+            rec = UITapGestureRecognizer.alloc().initWithTarget_action_(self, SEL("tap:"))
             tapmap[rec.ptr.value] = i
             rv.addGestureRecognizer_(rec)
             return rv
@@ -183,7 +183,7 @@ def get_cant_roller():
                 flip(i)
                 if all(solved):
                     sound.victory()
-                    self.performSelector_withObject_afterDelay_(get_selector("reset:"), None, NSTimeInterval(1))
+                    self.performSelector_withObject_afterDelay_(SEL("reset:"), None, NSTimeInterval(1))
                     return
                 else:
                     sound.match()
