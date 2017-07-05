@@ -6,8 +6,10 @@ numbers = [l.split() for l in """
 ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨ ⑩
 """.strip().splitlines()]
 
-
-braille = "⠼⠚ ⠼⠁ ⠼⠃ ⠼⠉ ⠼⠙ ⠼⠑ ⠼⠋ ⠼⠛ ⠼⠓ ⠼⠊".split(), list("0123456789")
+braille = [l.split() for l in """
+⠼⠚ ⠼⠁ ⠼⠃ ⠼⠉ ⠼⠙ ⠼⠑ ⠼⠋ ⠼⠛ ⠼⠓ ⠼⠊
+⓪ ① ② ③ ④ ⑤ ⑥ ⑦ ⑧ ⑨
+""".strip().splitlines()]
 
 
 def get_tiles(size):
