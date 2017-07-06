@@ -69,10 +69,10 @@ class PythonAppDelegate(UIResponder):
         win.rootViewController = root
         win.makeKeyAndVisible()
 
-        root.view = NSBundle.mainBundle.loadNibNamed_owner_options_("main", self, NSDictionary.new()).firstObject()
+        root.view = NSBundle.mainBundle.loadNibNamed("main", owner=self, options=NSDictionary.new()).firstObject()
         coll = find_view(root.view, "collectionview")
         logging.info("coll %s", coll)
-        coll.registerClass_forCellWithReuseIdentifier_(UICollectionViewCell, "knob")
+        coll.registerClass(UICollectionViewCell, forCellWithReuseIdentifier="knob")
         self.cant = get_cant_roller()
         coll.setDataSource_(self.cant)
 
@@ -147,16 +147,16 @@ def get_cant_roller():
         @logged
         def collectionView_cellForItemAtIndexPath_(self, view, path):
             i = path.item
-            rv = view.dequeueReusableCellWithReuseIdentifier_forIndexPath_("knob", path)
+            rv = view.dequeueReusableCellWithReuseIdentifier("knob", forIndexPath=path)
             cells[i] = rv
-            closed[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("knob", self, NSDictionary.new()).firstObject()
-            opened[i] = NSBundle.mainBundle.loadNibNamed_owner_options_("open", self, NSDictionary.new()).firstObject()
+            closed[i] = NSBundle.mainBundle.loadNibNamed("knob", owner=self, options=NSDictionary.new()).firstObject()
+            opened[i] = NSBundle.mainBundle.loadNibNamed("open", owner=self, options=NSDictionary.new()).firstObject()
             label = find_view(opened[i], "text")
             label.text = tiles[i][1]
             closed[i].retain()
             opened[i].retain()
             rv.addSubview_(closed[i])
-            rec = UITapGestureRecognizer.alloc().initWithTarget_action_(self, SEL("tap:"))
+            rec = UITapGestureRecognizer.alloc().initWithTarget(self, action=SEL("tap:"))
             tapmap[rec.ptr.value] = i
             rv.addGestureRecognizer_(rec)
             return rv
@@ -178,7 +178,7 @@ def get_cant_roller():
                 flip(i)
                 if all(solved):
                     sound.victory()
-                    self.performSelector_withObject_afterDelay_(SEL("reset:"), None, NSTimeInterval(1))
+                    self.performSelector(SEL("reset:"), withObject=None, afterDelay=NSTimeInterval(1))
                     return
                 else:
                     sound.match()
