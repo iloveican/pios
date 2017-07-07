@@ -28,7 +28,7 @@ def NSLog(s):
 class NSLogFile:
     def write(self, s):
         if s.strip():
-            NSLog(re.sub('File "[^"\n]*/site-packages/', 'File "', s.strip()))
+            NSLog(re.sub('File "[^"\n]*/(site-packages|python36[.]zip|com[.]example[.]dimark)/', 'File "', s.strip()))
 
 
 def handler():
