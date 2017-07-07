@@ -65,7 +65,7 @@ class PythonAppDelegate(UIResponder):
 
         root = UIViewController.new()
 
-        win = UIWindow.alloc().initWithFrame_(UIScreen.mainScreen.bounds)
+        win = UIWindow.alloc().initWithFrame(UIScreen.mainScreen.bounds)
         win.rootViewController = root
         win.makeKeyAndVisible()
 
@@ -74,7 +74,7 @@ class PythonAppDelegate(UIResponder):
         logging.info("coll %s", coll)
         coll.registerClass(UICollectionViewCell, forCellWithReuseIdentifier="knob")
         self.cant = get_cant_roller()
-        coll.setDataSource_(self.cant)
+        coll.setDataSource(self.cant)
 
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
@@ -140,7 +140,7 @@ def get_cant_roller():
 
         @objc_method
         def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
-            logging.debug("el in sec called %s", section)
+            logging.debug("numberOfItemsInSection %s", section)
             return 16
 
         @objc_method
@@ -155,10 +155,10 @@ def get_cant_roller():
             label.text = tiles[i][1]
             closed[i].retain()
             opened[i].retain()
-            rv.addSubview_(closed[i])
+            rv.addSubview(closed[i])
             rec = UITapGestureRecognizer.alloc().initWithTarget(self, action=SEL("tap:"))
             tapmap[rec.ptr.value] = i
-            rv.addGestureRecognizer_(rec)
+            rv.addGestureRecognizer(rec)
             return rv
 
         @objc_method
@@ -191,10 +191,6 @@ def get_cant_roller():
             flip(i)
             last = i
             sound.tap()
-
-        # @objc_method
-        # def collectionView_didSelectItemAt_(self, view, indexPath):
-        #     logging.debug("selected cell at %s %s", indexPath, indexPath.item)
 
         @objc_method
         def reset_(self):
