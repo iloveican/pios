@@ -1,5 +1,6 @@
 import nslog
 import logging
+import functools
 
 from rubicon.objc import objc_method, ObjCClass
 from rubicon.objc.types import CGSize, CGRect, CGPoint
@@ -20,6 +21,10 @@ UIWindow = ObjCClass("UIWindow")
 UIScreen = ObjCClass("UIScreen")
 UIResponder = ObjCClass("UIResponder")
 UIViewController = ObjCClass("UIViewController")
+UICollectionViewCell = ObjCClass("UICollectionViewCell")
+UITapGestureRecognizer = ObjCClass("UITapGestureRecognizer")
+NSBundle = ObjCClass("NSBundle")
+NSDictionary = ObjCClass("NSDictionary")
 
 
 # define PythonAppDelegate
@@ -64,12 +69,59 @@ class PythonAppDelegate(UIResponder):
         win.rootViewController = root
         win.makeKeyAndVisible()
 
-        root.view = UIView.new()
+        root.view = UIView.new()  # spans entire area
+
+        # show something as a test, feel free to remove
         lab = UILabel.alloc().initWithFrame(rect(50, 50, 200, 200))
         lab.text = "Blah-blah yada-yada"
         lab.setBackgroundColor(UIColor.whiteColor)
         root.view.addSubview(lab)
 
+        # create a collection view
+
+        # come up with cell views and register its class (a factory)
+
+        # here's how register an empty (not customised) cell view class
+        # xxx.registerClass(UICollectionViewCell, forCellWithReuseIdentifier="knob")
+
+        # set data source
+
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
         logging.debug("old orientation %s", oldStatusBarOrientation)
+
+
+# If a callback fails, ObjC runtime will crash and debugger is not particularly useful
+# it's a good idea to get a traceback logged before handing control over to ObjC
+def logged(f):
+    @functools.wraps(f)
+    def inner(*args, **kwargs):
+        try:
+            return f(*args, **kwargs)
+        except Exception:
+            logging.exception("%s", f)
+            raise
+    return inner
+
+
+class CantRoller(UIViewController):
+    """ Data source for collection view
+        Implement following protocol:
+        * UICollectionViewDataSource and output NxN array of cells
+        * [opt] UICollectionViewDelegate and gets notified when cell is clicked
+    """
+    # def __init__(self): init is not ran, as this is instantiated via ObjC runtime
+
+    @objc_method
+    def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
+        ...
+
+    @objc_method
+    @logged
+    def collectionView_cellForItemAtIndexPath_(self, view, path):
+        i = path.item  # actual index
+        # see "foobar" in the application delegate
+        rv = view.dequeueReusableCellWithReuseIdentifier("foobar", forIndexPath=path)
+        # reset this cell (in case it was reused)
+        # fill this cell with whatever needs to be shown
+        return rv
