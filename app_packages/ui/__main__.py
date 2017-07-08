@@ -19,6 +19,7 @@ UIColor = ObjCClass("UIColor")
 UIWindow = ObjCClass("UIWindow")
 UIScreen = ObjCClass("UIScreen")
 UIResponder = ObjCClass("UIResponder")
+UIViewController = ObjCClass("UIViewController")
 
 
 # define PythonAppDelegate
@@ -53,4 +54,22 @@ class PythonAppDelegate(UIResponder):
     def applicationDidBecomeActive(self) -> None:
         logging.debug("became active")
 
-    # your code here
+    @objc_method
+    def application_didFinishLaunchingWithOptions_(self, application, oldStatusBarOrientation: int) -> None:
+        logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
+
+        root = UIViewController.new()
+
+        win = UIWindow.alloc().initWithFrame(UIScreen.mainScreen.bounds)
+        win.rootViewController = root
+        win.makeKeyAndVisible()
+
+        root.view = UIView.new()
+        lab = UILabel.alloc().initWithFrame(rect(50, 50, 200, 200))
+        lab.text = "Blah-blah yada-yada"
+        lab.setBackgroundColor(UIColor.whiteColor)
+        root.view.addSubview(lab)
+
+    @objc_method
+    def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
+        logging.debug("old orientation %s", oldStatusBarOrientation)
