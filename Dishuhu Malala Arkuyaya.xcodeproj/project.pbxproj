@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3231B9361F138F9700C20115 /* main.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3231B9351F138F9700C20115 /* main.xib */; };
+		3231B9381F138FA100C20115 /* knob.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3231B9371F138FA100C20115 /* knob.xib */; };
 		601399B41D2E6B0600C7A1CB /* XZ.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 601399B31D2E6B0600C7A1CB /* XZ.framework */; };
 		6023B23D1C27D20F006F2562 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6023B23C1C27D20F006F2562 /* libsqlite3.tbd */; };
 		6023B23F1C27D218006F2562 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 6023B23E1C27D218006F2562 /* libz.tbd */; };
@@ -23,6 +25,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3231B9351F138F9700C20115 /* main.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = main.xib; sourceTree = "<group>"; };
+		3231B9371F138FA100C20115 /* knob.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = knob.xib; sourceTree = "<group>"; };
 		601399B31D2E6B0600C7A1CB /* XZ.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = XZ.framework; sourceTree = "<group>"; };
 		6023B23C1C27D20F006F2562 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		6023B23E1C27D218006F2562 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
@@ -67,6 +71,8 @@
 		32B4F9261E72D3BB00E64245 /* Nibs */ = {
 			isa = PBXGroup;
 			children = (
+				3231B9351F138F9700C20115 /* main.xib */,
+				3231B9371F138FA100C20115 /* knob.xib */,
 			);
 			name = Nibs;
 			sourceTree = "<group>";
@@ -180,8 +186,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3231B9361F138F9700C20115 /* main.xib in Resources */,
 				60796EF019190F4100A9926B /* InfoPlist.strings in Resources */,
 				60796EF819190F4100A9926B /* Images.xcassets in Resources */,
+				3231B9381F138FA100C20115 /* knob.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
