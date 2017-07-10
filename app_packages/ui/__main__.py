@@ -2,7 +2,7 @@ import nslog
 import logging
 import functools
 
-from rubicon.objc import objc_method, ObjCClass
+from rubicon.objc import objc_method, ObjCClass, SEL
 from rubicon.objc.types import CGSize, CGRect, CGPoint
 
 
@@ -25,6 +25,8 @@ UICollectionViewCell = ObjCClass("UICollectionViewCell")
 UITapGestureRecognizer = ObjCClass("UITapGestureRecognizer")
 NSBundle = ObjCClass("NSBundle")
 NSDictionary = ObjCClass("NSDictionary")
+
+UIViewAnimationOptionTransitionFlipFromBottom = 7 << 20
 
 
 def rect(x, y, w, h):
@@ -75,18 +77,11 @@ class PythonAppDelegate(UIResponder):
         win.rootViewController = root
         win.makeKeyAndVisible()
 
-        # TODO
-        # create a nib called "main" that represents the main view
-        # it should contain a collection view tagged "collectionview"
-
-        # NOTE if nib is not defined, this call will crash, see
-        # https://stackoverflow.com/questions/22322528/find-out-if-xib-exists-at-runtime
         nib = NSBundle.mainBundle.loadNibNamed("main", owner=self, options=NSDictionary.new())
         assert nib
         root.view = nib.firstObject()
         assert root.view
 
-        # "collectionview" is the resotrarion id of some element in the nib
         coll = find_view(root.view, "collectionview")
         assert coll
 
@@ -101,7 +96,9 @@ class PythonAppDelegate(UIResponder):
 
 class state:
     """ Keeps controller state """
-    ...
+    opened = dict()
+    closed = dict()
+    current = {i: False for i in range(16)}
 
 
 class CantRoller(UIViewController):
@@ -124,12 +121,40 @@ class CantRoller(UIViewController):
 
         # FIXME reset this cell (in case it was reused)
         content = NSBundle.mainBundle.loadNibNamed("knob", owner=self, options=NSDictionary.new()).firstObject()
-        # content.retain()  # will be discussed later
+        content.retain()  # so that ObjC runtime doesn't garbage-collect it, when/if it's not displayed
+        state.closed[i] = content
 
         # "text" is the resotration id of some element in the nib
         label = find_view(content, "text")
         label.text = str(i)
 
+        # TODO create another version of "knob", for example same size different look
+        ...
+        state.opened[i] = ...
+
         # fill this cell with whatever needs to be shown
         rv.addSubview(content)
+
+        # NEW: register a callback when a knob is clicked
+        rec = UITapGestureRecognizer.alloc().initWithTarget(self, action=SEL("tap:"))
+        # TODO record somewhere which knob it was
+        # state. ...
+        rv.addGestureRecognizer(rec)
         return rv
+
+    @objc_method
+    @logged
+    def tap_(self, rec):
+        # TODO figure out which knob was clicked
+        i = 0  # not the real value
+
+        # transition from current view to new view
+        new = state.closed[i] if state.current[i] else state.opened[i]
+        logging.debug("new view %s", new)
+
+        # transition type example: UIViewAnimationOptionTransitionFlipFromBottom
+
+        # update state.current
+        state.current[i] = not state.current[i]
+
+        # play a sound
