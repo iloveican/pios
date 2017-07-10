@@ -1,10 +1,10 @@
-# playing-with-python-on-ios
+# pios
 
 Sample project demonstrating Python on iOS, using native native UI (Apple UIKit).
 
 ## Current state
 
-![screenshot](https://github.com/dimaqq/playing-with-python-on-ios/raw/master/screenshot.png "Screenshot")
+![screenshot](https://github.com/dimaqq/pios/raw/master/screenshot.png "Screenshot")
 
 ## Set up
 
@@ -17,7 +17,7 @@ Note:
 
 Unpack it at at top level of repository, so that it looks like this:
 ```
-⋊> ~/i/playing-with-python-on-ios on master ◦ ls -la
+⋊> ~/i/pios on master ◦ ls -la
 total 24
 drwxr-xr-x  14 dima  staff  476 18 Feb 08:11 .
 drwxr-xr-x   4 dima  staff  136 17 Feb 19:06 ..
