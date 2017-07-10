@@ -70,8 +70,8 @@ class PythonAppDelegate(UIResponder):
         coll = find_view(root.view, "collectionview")
         logging.info("coll %s", coll)
         coll.registerClass(UICollectionViewCell, forCellWithReuseIdentifier="knob")
-        self.cant = get_cant_roller()
-        coll.setDataSource(self.cant)
+        cant = get_cant_roller()
+        coll.setDataSource(cant)
 
     @objc_method
     def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
