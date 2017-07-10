@@ -27,68 +27,21 @@ NSBundle = ObjCClass("NSBundle")
 NSDictionary = ObjCClass("NSDictionary")
 
 
-# define PythonAppDelegate
-
-# implement the protocol:
-# * applicationDidBecomeActive (to test)
-# * application:didFinishLaunchingWithOptions: (where you create window and view)
-# * application:didChangeStatusBarOrientation: (test screen orientation)
-
-# Resources:
-# https://oleb.net/blog/2012/02/app-launch-sequence-ios-revisited/
-# https://stackoverflow.com/questions/7520971/applications-are-expected-to-have-a-root-view-controller-at-the-end-of-applicati
-
-# Figure out window size
-# Create a window
-# Create a view controller
-# Set window's root view controller
-# Create a view
-# Set controller's view
-# display something in the view (to see that it works)
-
-
 def rect(x, y, w, h):
     """ A la CGRectMake """
     return CGRect(CGPoint(x, y), CGSize(w, h))
 
 
-class PythonAppDelegate(UIResponder):
-    # def __init__(self): init is not ran, as this is instantiated by ObjC runtime
+def all_views(v):
+    yield v
+    for vv in v.subviews():
+        yield from all_views(vv)
 
-    @objc_method
-    def applicationDidBecomeActive(self) -> None:
-        logging.debug("became active")
 
-    @objc_method
-    def application_didFinishLaunchingWithOptions_(self, application, oldStatusBarOrientation: int) -> None:
-        logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
-
-        root = UIViewController.new()
-
-        win = UIWindow.alloc().initWithFrame(UIScreen.mainScreen.bounds)
-        win.rootViewController = root
-        win.makeKeyAndVisible()
-
-        root.view = UIView.new()  # spans entire area
-
-        # show something as a test, feel free to remove
-        lab = UILabel.alloc().initWithFrame(rect(50, 50, 200, 200))
-        lab.text = "Blah-blah yada-yada"
-        lab.setBackgroundColor(UIColor.whiteColor)
-        root.view.addSubview(lab)
-
-        # create a collection view
-
-        # come up with cell views and register its class (a factory)
-
-        # here's how register an empty (not customised) cell view class
-        # xxx.registerClass(UICollectionViewCell, forCellWithReuseIdentifier="knob")
-
-        # set data source
-
-    @objc_method
-    def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
-        logging.debug("old orientation %s", oldStatusBarOrientation)
+def find_view(v, id="something"):
+    for vv in all_views(v):
+        if vv.restorationIdentifier == id:
+            return vv
 
 
 # If a callback fails, ObjC runtime will crash and debugger is not particularly useful
@@ -104,6 +57,53 @@ def logged(f):
     return inner
 
 
+class PythonAppDelegate(UIResponder):
+    # def __init__(self): init is not ran, as this is instantiated by ObjC runtime
+
+    @objc_method
+    def applicationDidBecomeActive(self) -> None:
+        logging.debug("became active")
+
+    @objc_method
+    @logged
+    def application_didFinishLaunchingWithOptions_(self, application, oldStatusBarOrientation: int) -> None:
+        logging.debug("finished launching %s %s", application, oldStatusBarOrientation)
+
+        root = UIViewController.new()
+
+        win = UIWindow.alloc().initWithFrame(UIScreen.mainScreen.bounds)
+        win.rootViewController = root
+        win.makeKeyAndVisible()
+
+        # TODO
+        # create a nib called "main" that represents the main view
+        # it should contain a collection view tagged "collectionview"
+
+        # NOTE if nib is not defined, this call will crash, see
+        # https://stackoverflow.com/questions/22322528/find-out-if-xib-exists-at-runtime
+        nib = NSBundle.mainBundle.loadNibNamed("main", owner=self, options=NSDictionary.new())
+        assert nib
+        root.view = nib.firstObject()
+        assert root.view
+
+        # "collectionview" is the resotrarion id of some element in the nib
+        coll = find_view(root.view, "collectionview")
+        assert coll
+
+        coll.registerClass(UICollectionViewCell, forCellWithReuseIdentifier="foobar")
+        cant = CantRoller.new()
+        coll.setDataSource(cant)
+
+    @objc_method
+    def application_didChangeStatusBarOrientation_(self, application, oldStatusBarOrientation: int) -> None:
+        logging.debug("old orientation %s", oldStatusBarOrientation)
+
+
+class state:
+    """ Keeps controller state """
+    ...
+
+
 class CantRoller(UIViewController):
     """ Data source for collection view
         Implement following protocol:
@@ -114,14 +114,22 @@ class CantRoller(UIViewController):
 
     @objc_method
     def collectionView_numberOfItemsInSection_(self, view, section: int) -> int:
-        ...
+        return 16
 
     @objc_method
     @logged
     def collectionView_cellForItemAtIndexPath_(self, view, path):
         i = path.item  # actual index
-        # see "foobar" in the application delegate
         rv = view.dequeueReusableCellWithReuseIdentifier("foobar", forIndexPath=path)
-        # reset this cell (in case it was reused)
+
+        # FIXME reset this cell (in case it was reused)
+        content = NSBundle.mainBundle.loadNibNamed("knob", owner=self, options=NSDictionary.new()).firstObject()
+        # content.retain()  # will be discussed later
+
+        # "text" is the resotration id of some element in the nib
+        label = find_view(content, "text")
+        label.text = str(i)
+
         # fill this cell with whatever needs to be shown
+        rv.addSubview(content)
         return rv
