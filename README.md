@@ -9,7 +9,7 @@ Sample project demonstrating Python on iOS, using native native UI (Apple UIKit)
 ## Set up
 
 Grab prebuilt framework from:
-https://github.com/pybee/Python-Apple-support/tree/3.5#quickstart
+https://github.com/dimaqq/Python-Apple-support/releases/download/3.6.1-b1/Python-3.6-iOS-support.b1.tar.gz
 
 Note:
 * branch corresponds to Python version (i.e. use 3.5)
