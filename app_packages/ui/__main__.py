@@ -2,7 +2,7 @@ import nslog
 import logging
 import functools
 
-from rubicon.objc import objc_method, ObjCClass
+from rubicon.objc import objc_method, ObjCClass, ObjCInstance, send_super
 from rubicon.objc.types import CGSize, CGRect, CGPoint
 
 
@@ -27,24 +27,7 @@ NSBundle = ObjCClass("NSBundle")
 NSDictionary = ObjCClass("NSDictionary")
 
 
-# define PythonAppDelegate
-
-# implement the protocol:
-# * applicationDidBecomeActive (to test)
-# * application:didFinishLaunchingWithOptions: (where you create window and view)
-# * application:didChangeStatusBarOrientation: (test screen orientation)
-
-# Resources:
-# https://oleb.net/blog/2012/02/app-launch-sequence-ios-revisited/
-# https://stackoverflow.com/questions/7520971/applications-are-expected-to-have-a-root-view-controller-at-the-end-of-applicati
-
-# Figure out window size
-# Create a window
-# Create a view controller
-# Set window's root view controller
-# Create a view
-# Set controller's view
-# display something in the view (to see that it works)
+# TODO xxx
 
 
 def rect(x, y, w, h):
@@ -54,6 +37,20 @@ def rect(x, y, w, h):
 
 class PythonAppDelegate(UIResponder):
     # def __init__(self): init is not ran, as this is instantiated by ObjC runtime
+
+    @objc_method
+    def init(self):
+        # NOTE: ObjC runtime calls "init" and not "__init__"
+
+        # Why reassign `self`?
+        # https://www.cocoawithlove.com/2009/04/what-does-it-mean-when-you-assign-super.html
+        # TL;DR: doesn't matter in this case
+        self = ObjCInstance(send_super(self, 'init'))
+
+        # custom initialisation here
+
+        # NOTE: ObjC runtime requires that your return self (None means allocation failed)
+        return self
 
     @objc_method
     def applicationDidBecomeActive(self) -> None:
@@ -71,7 +68,7 @@ class PythonAppDelegate(UIResponder):
 
         root.view = UIView.new()  # spans entire area
 
-        # show something as a test, feel free to remove
+        # NOTE: show something as a test, you wanna remove this
         lab = UILabel.alloc().initWithFrame(rect(50, 50, 200, 200))
         lab.text = "Blah-blah yada-yada"
         lab.setBackgroundColor(UIColor.whiteColor)
@@ -80,9 +77,12 @@ class PythonAppDelegate(UIResponder):
         # create a collection view
 
         # come up with cell views and register its class (a factory)
+        # design choice:
+        # * either subclass UICollectionViewCell and customise in its objc_method/init, or
+        # * register UICollectionViewCell itself to the factory, and customise in controller's cellForItemAtIndexPath
 
         # here's how register an empty (not customised) cell view class
-        # xxx.registerClass(UICollectionViewCell, forCellWithReuseIdentifier="knob")
+        # xxx.registerClass(UICollectionViewCell, forCellWithReuseIdentifier="foobar")
 
         # set data source
 
@@ -120,6 +120,7 @@ class CantRoller(UIViewController):
     @logged
     def collectionView_cellForItemAtIndexPath_(self, view, path):
         i = path.item  # actual index
+        logging.debug("uikit wants the collection view cell for index %s", i)
         # see "foobar" in the application delegate
         rv = view.dequeueReusableCellWithReuseIdentifier("foobar", forIndexPath=path)
         # reset this cell (in case it was reused)
